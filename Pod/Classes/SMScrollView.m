@@ -181,8 +181,8 @@
     CGSize zoomViewSize = zoomView.bounds.size;
 
     CGFloat scaleToFit = fminf(scrollViewSize.width / zoomViewSize.width, scrollViewSize.height / zoomViewSize.height);
-    if (scaleToFit > 1.0) {
-        scaleToFit = 1.0;
+    if (scaleToFit > 1.3) {
+        scaleToFit = 1.3;
     }
     self.minimumZoomScale = scaleToFit;
 }
