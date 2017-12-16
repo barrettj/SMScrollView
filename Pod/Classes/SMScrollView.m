@@ -63,7 +63,7 @@
 - (void)scaleToFit {
     if (![self.delegate respondsToSelector:@selector(viewForZoomingInScrollView:)]) return;
     [self _setMinimumZoomScaleToFit];
-    self.zoomScale = self.minimumZoomScale;
+    self.zoomScale = [self fitZoomScale];
 }
 
 - (void)addViewForZooming:(UIView *)view {
@@ -175,23 +175,29 @@
     }
 }
 
-- (void)_setMinimumZoomScaleToFit {
+- (CGFloat)fitZoomScale {
     UIView *zoomView = [self.delegate viewForZoomingInScrollView:self];
     CGSize scrollViewSize = self.bounds.size;
     CGSize zoomViewSize = zoomView.bounds.size;
 
     CGFloat scaleToFit = fminf(scrollViewSize.width / zoomViewSize.width, scrollViewSize.height / zoomViewSize.height);
+    
     if (scaleToFit > 1.3) {
         scaleToFit = 1.3;
     }
-    self.minimumZoomScale = scaleToFit;
+    
+    return scaleToFit;
+}
+
+- (void)_setMinimumZoomScaleToFit {
+    self.minimumZoomScale = [self fitZoomScale] * 0.9;
 }
 
 - (void)_doubleTapped:(UIGestureRecognizer *)gestureRecognizer {
     if ([self.delegate respondsToSelector:@selector(viewForZoomingInScrollView:)]) {
         UIView *zoomView = [self.delegate viewForZoomingInScrollView:self];
 
-        if (self.zoomScale == self.minimumZoomScale) {
+        if (self.zoomScale == [self fitZoomScale]) {
             // When user double-taps on the scrollView while it is zoomed out, zoom-in
             CGFloat newScale = self.maximumZoomScale;
             CGPoint centerPoint = [gestureRecognizer locationInView:zoomView];
@@ -199,7 +205,7 @@
             [self zoomToRect:zoomRect animated:YES];
         } else {
             // When user double-taps on the scrollView while it is zoomed, zoom-out
-            [self setZoomScale:self.minimumZoomScale animated:YES];
+            [self setZoomScale:[self fitZoomScale] animated:YES];
         }
     }
 }
